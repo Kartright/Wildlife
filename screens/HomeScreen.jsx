@@ -8,16 +8,27 @@ import { auth } from '../authService';
 import Slider from '@react-native-community/slider';
 
 export default function HomeScreen({ navigation }) {
+
+  // User's current location
   const [location, setLocation] = useState(null);
+
+  // List of places the user can view
   const [places, setPlaces] = useState([]);
+
+  // Filter applied to place search
   const [filter, setFilter] = useState('all');
+
+  // Radius of search ring around the user's current location
   const [searchRadius, setSearchRadius] = useState(5);
+
   const { width } = Dimensions.get('window');
+
 
   // Get user's current location
   useEffect(() => {
     async function getCurrentLocation() {
-      
+
+      // Requesting permission from application
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setErrorMsg('Permission to access location was denied');
@@ -33,7 +44,9 @@ export default function HomeScreen({ navigation }) {
         longitudeDelta: 0.0421,
       });  
     }
+
     getCurrentLocation();
+
   }, []);
 
 
@@ -43,7 +56,6 @@ export default function HomeScreen({ navigation }) {
     const fetchPlaces = async () => {
 
       const querySnapshot = await getDocs(collection(db, "establishments"));
-    
       querySnapshot.forEach((doc) => {
         // doc.data() is never undefined for query doc snapshots
         console.log(doc.id, " => ", doc.data());
@@ -52,11 +64,9 @@ export default function HomeScreen({ navigation }) {
       const placesData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-
       }));
 
       setPlaces(placesData);
-
     };
 
     fetchPlaces();
@@ -64,11 +74,20 @@ export default function HomeScreen({ navigation }) {
   }, []);
 
 
+  // Navigate to AddLocation screen on map press
+  const handleMapPress = (event) => {
+    const { coordinate } = event.nativeEvent;
+    console.log(coordinate);
+    navigation.navigate('AddLocation', { coordinate });
+  }
+
+
   // Filter places based on type
   const filteredPlaces = (filter === 'all') ? places : places.filter(place => place.type === filter);
   console.log(filteredPlaces);
   console.log("location" + location);
 
+  
   return (
     <View style={styles.container}>
       <View style={styles.sliderContainer}>
@@ -83,7 +102,7 @@ export default function HomeScreen({ navigation }) {
         <Text style={styles.sliderValue}>{searchRadius}</Text>
       </View>
       {location && (
-        <MapView style={styles.map} initialRegion={location}>
+        <MapView style={styles.map} initialRegion={location} showsUserLocation={true} onPress={handleMapPress}>
           {filteredPlaces.map(place => (
             <Marker
               key={place.id}
@@ -93,10 +112,6 @@ export default function HomeScreen({ navigation }) {
               onPress={() => navigation.navigate('Detail', { place })}
             />
           ))}
-          <Marker
-            coordinate={{ latitude: location.latitude, longitude: location.longitude }}
-            image='../assets/images/icons8-person-64.png'
-          />
           <Circle
             center={{ latitude: location.latitude, longitude: location.longitude }}
             radius={searchRadius * 1000}

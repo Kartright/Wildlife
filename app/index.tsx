@@ -8,6 +8,7 @@ import DetailScreen from '../screens/DetailScreen.jsx';
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import AddLocationScreen from '../screens/AddLocationScreen';
 
 const Stack = createStackNavigator();
 
@@ -22,7 +23,8 @@ export default function Index() {
         <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'Login' }} />
         <Stack.Screen name="SignUp" component={SignUpScreen} options={{ title: 'Sign Up' }} />
         <Stack.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profile' }} />
+        <Stack.Screen name="AddLocation" component={AddLocationScreen} options={{ title: 'Add Location' }} />
       </Stack.Navigator>
-    
+
   );
 }

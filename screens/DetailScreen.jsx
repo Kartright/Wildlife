@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { updateDoc, addDoc, collection, onSnapshot, query, doc } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
-import { useAuth, auth } from '../authService';
+import { auth } from '../authService';
 
 export default function DetailScreen({ route }) {
   const { place } = route.params;
   const [rating, setRating] = useState('');
   const [comment, setComment] = useState('');
   const [feedback, setFeedback] = useState([]);
+
 
   // Fetch real-time feedback
   useEffect(() => {
@@ -17,7 +18,7 @@ export default function DetailScreen({ route }) {
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const feedbackData = querySnapshot.docs.map(doc => doc.data());
         setFeedback(feedbackData);
-      });
+    });
 
     return () => unsubscribe();
   }, [place.id]);
@@ -64,6 +65,7 @@ export default function DetailScreen({ route }) {
 
     setRating('');
     setComment('');
+
   };
 
 
@@ -91,7 +93,6 @@ export default function DetailScreen({ route }) {
       ))}
     </View>
   );
-
 }
 
 
