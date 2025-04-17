@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions } from '
 import MapView, { Marker, Circle } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { db } from '../firebaseConfig';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { auth } from '../authService';
 import Slider from '@react-native-community/slider';
 
@@ -20,6 +20,7 @@ export default function HomeScreen({ navigation }) {
 
   // Radius of search ring around the user's current location
   const [searchRadius, setSearchRadius] = useState(5);
+  const [filterRadius, setFilterRadius] = useState(5);
 
   const { width } = Dimensions.get('window');
 
@@ -54,13 +55,25 @@ export default function HomeScreen({ navigation }) {
   useEffect(() => {
  
     const fetchPlaces = async () => {
+      // query reference for only showing locations that are within a certain distance of you.
+      const deltaLat = searchRadius / 111;
+      const deltaLng = searchRadius / (111.320 * Math.cos(location.latitude * (Math.PI / 180)));
+      const latMax = location.latitude + deltaLat;
+      const latMin = location.latitude - deltaLat;
+      const lngMax = location.longitude + deltaLng;
+      const lngMin = location.longitude - deltaLng;
+      const q = query(collection(db, "establishments"),
+                      where("latitude", "<=", latMax),
+                      where("latitude", ">=", latMin),
+                      where("longitude", "<=", lngMax),
+                      where("longitude", ">=", lngMin))
 
-      const querySnapshot = await getDocs(collection(db, "establishments"));
+      const querySnapshot = await getDocs(q);
       querySnapshot.forEach((doc) => {
         // doc.data() is never undefined for query doc snapshots
         console.log(doc.id, " => ", doc.data());
       });
-      
+
       const placesData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
@@ -71,7 +84,7 @@ export default function HomeScreen({ navigation }) {
 
     fetchPlaces();
 
-  }, []);
+  }, [filterRadius, location]);
 
 
   // Navigate to AddLocation screen on map press
@@ -87,7 +100,7 @@ export default function HomeScreen({ navigation }) {
   console.log(filteredPlaces);
   console.log("location" + location);
 
-  
+
   return (
     <View style={styles.container}>
       <View style={styles.sliderContainer}>
@@ -98,8 +111,9 @@ export default function HomeScreen({ navigation }) {
           minimumTrackTintColor="#FFFFFF"
           maximumTrackTintColor="#000000"
           onValueChange={setSearchRadius}
+          onSlidingComplete={setFilterRadius}
         />
-        <Text style={styles.sliderValue}>{searchRadius}</Text>
+        <Text style={styles.sliderValue}>{Math.round(searchRadius)}</Text>
       </View>
       {location && (
         <MapView style={styles.map} initialRegion={location} showsUserLocation={true} onPress={handleMapPress}>
