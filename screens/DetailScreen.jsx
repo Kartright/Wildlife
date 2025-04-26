@@ -4,96 +4,104 @@ import { updateDoc, addDoc, collection, onSnapshot, query, doc } from 'firebase/
 import { db } from '../firebaseConfig';
 import { auth } from '../authService';
 import StarRating from 'react-native-star-rating-widget';
+import ReviewDisplayBox from '../components/ReviewDisplayBox';
 
 export default function DetailScreen({ route }) {
-  const { place } = route.params;
-  const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState('');
-  const [feedback, setFeedback] = useState([]);
+    const { place } = route.params;
+    const [rating, setRating] = useState(0);
+    const [comment, setComment] = useState('');
+    const [feedback, setFeedback] = useState([]);
 
 
-  // Fetch real-time feedback
-  useEffect(() => {
-    //const unsubscribe = db.collection('establishments').doc(place.id)
-    const q = query(collection(db, 'establishments', place.id, 'feedback'));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        const feedbackData = querySnapshot.docs.map(doc => doc.data());
-        setFeedback(feedbackData);
-    });
+    // Fetch real-time feedback
+    useEffect(() => {
+        //const unsubscribe = db.collection('establishments').doc(place.id)
+        const q = query(collection(db, 'establishments', place.id, 'feedback'));
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const feedbackData = querySnapshot.docs.map(doc => doc.data());
+            setFeedback(feedbackData);
+        });
 
-    return () => unsubscribe();
-  }, [place.id]);
-
-
-  // Handle check-in and feedback submission
-  const submitFeedback = async () => {
-    //if (!auth.currentUser) {
-    //  alert('Please log in to submit feedback.');
-    //  return;
-    //}
-
-    // Store feedback in establishments collection 
-    const feedbackRef = collection(db, 'establishments', place.id, 'feedback');
-    await addDoc(feedbackRef, {
-      displayName: auth.currentUser.displayName,
-      userId: auth.currentUser.uid,
-      rating: parseFloat(rating),
-      comment,
-      timestamp: new Date(),
-    });
+        return () => unsubscribe();
+    }, [place.id]);
 
 
-    // Store feedback in user collection
-    const feedbackByUserIdRef = collection(db, 'Reviews_By_User_ID', auth.currentUser.uid , 'Reviews');
-    await addDoc(feedbackByUserIdRef, {
-      establishmentName: place.name,
-      rating: parseFloat(rating),
-      comment,
-      timestamp: new Date(),
-    });
+    // Handle check-in and feedback submission
+     const submitFeedback = async () => {
+        //if (!auth.currentUser) {
+        //  alert('Please log in to submit feedback.');
+        //  return;
+        //}
+
+        // Store feedback in establishments collection 
+        const feedbackRef = collection(db, 'establishments', place.id, 'feedback');
+        await addDoc(feedbackRef, {
+            displayName: auth.currentUser.displayName,
+            userId: auth.currentUser.uid,
+            rating: parseFloat(rating),
+            comment,
+            timestamp: new Date(),
+        });
 
 
-    //Update establshemnts rating
-    const placeRef = doc(db, 'establishments', place.id);
-    await updateDoc(placeRef, {
-      rating: place.rating + parseFloat(rating),
-      ratingCount: place.ratingCount + 1
-    });
+        // Store feedback in user collection
+        const feedbackByUserIdRef = collection(db, 'Reviews_By_User_ID', auth.currentUser.uid , 'Reviews');
+        await addDoc(feedbackByUserIdRef, {
+            establishmentName: place.name,
+            rating: parseFloat(rating),
+            comment,
+            timestamp: new Date(),
+        });
 
 
-    //Update user review count
-    const userReviewCountRef = collection(db, 'Reviews_By_User_ID', auth.currentUser.uid);
-    await updateDoc(userReviewCountRef, {
-      reviewCount: increment(1)
-    });
-
-    setRating('');
-    setComment('');
-
-  };
+        //Update establshemnts rating
+        const placeRef = doc(db, 'establishments', place.id);
+        await updateDoc(placeRef, {
+            rating: place.rating + parseFloat(rating),
+            ratingCount: place.ratingCount + 1
+        });
 
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{place.name}</Text>
-      <Text>Average Rating: {place.rating ? (place.rating / place.ratingCount).toFixed(1) : 'N/A'}</Text>
-      <StarRating
-        rating={rating}
-        onChange={setRating}
-      />
-      <TextInput
-        placeholder="Comment"
-        value={comment}
-        onChangeText={setComment}
-        style={styles.input}
-      />
-      <Button title="Check-In & Submit" onPress={submitFeedback} />
-      <Text style={styles.subtitle}>Live Feedback:</Text>
-      {feedback.map((item, index) => (
-        <Text key={index}>{item.displayName}: {item.rating} - {item.comment}</Text>
-      ))}
-    </View>
-  );
+        //Update user review count
+        const userReviewCountRef = collection(db, 'Reviews_By_User_ID', auth.currentUser.uid);
+        await updateDoc(userReviewCountRef, {
+            reviewCount: increment(1)
+        }); 
+
+        setRating('');
+        setComment('');
+
+    };
+
+
+    return (
+        <View style={styles.container}>
+            <Text style={styles.title}>{place.name}</Text>
+            <Text>Average Rating: {place.rating ? (place.rating / place.ratingCount).toFixed(1) : 'N/A'}</Text>
+            <StarRating
+                rating={rating}
+                onChange={setRating}
+            />
+            <TextInput
+                placeholder="Comment"
+                value={comment}
+                onChangeText={setComment}
+                style={styles.input}
+            />
+            <Button title="Check-In & Submit" onPress={submitFeedback} />
+            <Text style={styles.subtitle}>Live Feedback:</Text>
+            {feedback.map((item, index) => (
+                <View key={index}>
+                    <ReviewDisplayBox
+                        text={item.comment}
+                        username={item.displayName}
+                        timestamp={item.timestamp}
+                        rating={item.rating}
+                    />
+                </View>
+            ))}
+        </View>
+    );
 }
 
 
