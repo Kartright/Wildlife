@@ -112,6 +112,7 @@ export default function HomeScreen({ navigation }) {
           maximumTrackTintColor="#000000"
           onValueChange={setSearchRadius}
           onSlidingComplete={setFilterRadius}
+          value={5}
         />
         <Text style={styles.sliderValue}>{Math.round(searchRadius)}</Text>
       </View>

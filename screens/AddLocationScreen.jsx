@@ -16,6 +16,7 @@ export default function AddLocationScreen({ route, navigation }) {
 
   console.log(route.params);
 
+  // Category selection drop down menu
   const renderItem = item => {
     return (
       <View style={styles.item}>
@@ -32,6 +33,8 @@ export default function AddLocationScreen({ route, navigation }) {
     );
   };
 
+
+  // Add location to firestore database
   const addLocation = async () => {
     const establishmentsRef = collection(db, 'establishments');
     await addDoc(establishmentsRef, {
@@ -44,15 +47,21 @@ export default function AddLocationScreen({ route, navigation }) {
     });
   };
 
+
+  // Check that proper information was given before adding location.
   const handleAddLocation = () => {
     if (type == '') {
       console.log("No Category Selected");
       return;
+    } else if (name == '') {
+      console.log("No name given");
+      return;
     } else {
       addLocation();
-      navigation.navigate('Home');
+      navigation.popToTop();
     };
   };
+
 
   return (
     <View style={styles.container}>

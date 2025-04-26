@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, Button } from 'react-native';
 import { signUpUser } from '../authService';
 
-export default function SignUpScreen({navigation}) {
+export default function SignUpScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
@@ -15,7 +15,6 @@ export default function SignUpScreen({navigation}) {
     try{
       const user = await signUpUser(email, password, username);
       console.log("Signed up successfully", user);
-      navigation.navigate("Home");
     } catch (error) {
       setSignUpError(error.message);
       console.log(error.message);

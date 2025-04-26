@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, Button } from 'react-native';
 import { signInUser } from '../authService';
 
-export default function LoginScreen({ navigation }) {
+export default function LoginScreen() {
   //Email and Password variables
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,7 +14,6 @@ export default function LoginScreen({ navigation }) {
     try {
       const user = await signInUser(email, password);
       console.log("Signed in successfully", user);
-      navigation.navigate("Home");
     } catch (error) {
       setLoginError(error.message);
       console.log(error.message);
@@ -23,18 +22,19 @@ export default function LoginScreen({ navigation }) {
 
 
   return (
-    <View sytles={StyleSheet.container}>
-      <Text sytles={styles.subtitle}>Email</Text>
+    <View styles={StyleSheet.container}>
+      <Text styles={styles.subtitle}>Email</Text>
       <TextInput
         value={email}
         onChangeText={setEmail}
         style={styles.input}
       />
-      <Text sytels={styles.subtitle}>Password</Text>
+      <Text styles={styles.subtitle}>Password</Text>
       <TextInput
         value={password}
         onChangeText={setPassword}
         style={styles.input}
+        secureTextEntry={true}
       />
       <Button title="Sign Up" onPress={() => navigation.navigate("SignUp")}/>
       <Button title="Sign In" onPress={handleLogin}/>

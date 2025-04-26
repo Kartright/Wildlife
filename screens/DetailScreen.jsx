@@ -3,10 +3,11 @@ import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { updateDoc, addDoc, collection, onSnapshot, query, doc } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import { auth } from '../authService';
+import StarRating from 'react-native-star-rating-widget';
 
 export default function DetailScreen({ route }) {
   const { place } = route.params;
-  const [rating, setRating] = useState('');
+  const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [feedback, setFeedback] = useState([]);
 
@@ -41,6 +42,7 @@ export default function DetailScreen({ route }) {
       timestamp: new Date(),
     });
 
+
     // Store feedback in user collection
     const feedbackByUserIdRef = collection(db, 'Reviews_By_User_ID', auth.currentUser.uid , 'Reviews');
     await addDoc(feedbackByUserIdRef, {
@@ -50,12 +52,14 @@ export default function DetailScreen({ route }) {
       timestamp: new Date(),
     });
 
+
     //Update establshemnts rating
     const placeRef = doc(db, 'establishments', place.id);
     await updateDoc(placeRef, {
       rating: place.rating + parseFloat(rating),
       ratingCount: place.ratingCount + 1
     });
+
 
     //Update user review count
     const userReviewCountRef = collection(db, 'Reviews_By_User_ID', auth.currentUser.uid);
@@ -73,12 +77,9 @@ export default function DetailScreen({ route }) {
     <View style={styles.container}>
       <Text style={styles.title}>{place.name}</Text>
       <Text>Average Rating: {place.rating ? (place.rating / place.ratingCount).toFixed(1) : 'N/A'}</Text>
-      <TextInput
-        placeholder="Rate (1-5)"
-        value={rating}
-        onChangeText={setRating}
-        keyboardType="numeric"
-        style={styles.input}
+      <StarRating
+        rating={rating}
+        onChange={setRating}
       />
       <TextInput
         placeholder="Comment"
