@@ -16,33 +16,33 @@ const AuthStack = createStackNavigator();
 
 
 function AuthNavigator() {
-  return(
-    <AuthStack.Navigator screenOptions={{ headerShown: false }}>
-      <AuthStack.Screen name="Login" component={LoginScreen} options={{ title: 'Login' }} />
-      <AuthStack.Screen name="SignUp" component={SignUpScreen} options={{ title: 'Sign Up' }} />
-    </AuthStack.Navigator>
-  );
+  	return(
+    	<AuthStack.Navigator screenOptions={{ headerShown: false }}>
+      		<AuthStack.Screen name="Login" component={LoginScreen} options={{ title: 'Login' }} />
+      		<AuthStack.Screen name="SignUp" component={SignUpScreen} options={{ title: 'Sign Up' }} />
+    	</AuthStack.Navigator>
+  	);
 };
 
 
 function AppNavigator() {
     return (
-      <AppStack.Navigator>
-        <AppStack.Screen name="Home" component={HomeScreen} options={{ title: 'Wildlife' }} />
-        <AppStack.Screen name="Detail" component={DetailScreen} options={{ title: 'Place Details' }} />
-        <AppStack.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profile' }} />
-        <AppStack.Screen name="AddLocation" component={AddLocationScreen} options={{ title: 'Add Location' }} />
-      </AppStack.Navigator>
-  );
+    	<AppStack.Navigator>
+        	<AppStack.Screen name="Home" component={HomeScreen} options={{ title: 'Wildlife' }} />
+        	<AppStack.Screen name="Detail" component={DetailScreen} options={{ title: 'Place Details' }} />
+        	<AppStack.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profile' }} />
+        	<AppStack.Screen name="AddLocation" component={AddLocationScreen} options={{ title: 'Add Location' }} />
+      	</AppStack.Navigator>
+  	);
 };
 
 
 export default function Index() {
-  const user = useAuth();
-  console.log(user);
-  return(
-    <>
-    {user ? <AppNavigator /> : <AuthNavigator />}
-    </>
-  );
+  	const user = useAuth();
+  	console.log(user);
+  	return(
+    	<>
+    		{user ? <AppNavigator /> : <AuthNavigator />}
+    	</>
+  	);
 };
