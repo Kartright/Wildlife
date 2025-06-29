@@ -1,8 +1,10 @@
 import React from 'react';
-import { Text, StyleSheet, View } from 'react-native';
+import { Text, StyleSheet, View, TouchableOpacity, Touchable } from 'react-native';
 import StarRating from 'react-native-star-rating-widget';
+import { doc, getDoc } from "firebase/firestore";
+import { db } from '../firebaseConfig';
 
-const ReviewDisplayBox = ({ text, username, timestamp, rating }) => {
+const ReviewDisplayBox = ({ text, username, timestamp, rating, establishmentId, userId, navigation }) => {
     const formatTimestamp = (timestamp) => {
         if (timestamp && timestamp.seconds) {
           // Convert the Firebase Timestamp to a JavaScript Date object
@@ -12,12 +14,26 @@ const ReviewDisplayBox = ({ text, username, timestamp, rating }) => {
         return ''; // If timestamp is not valid, return an empty string
       };
 
+    const navToEstablishment = async () => {
+        const docRef = doc(db, "establishments", establishmentId);
+        const docSnap = await getDoc(docRef);
+        navigation.navigate('Detail', {place: {id: establishmentId, ...docSnap.data()}} );
+    }
+
+    const navToUser = async () => {
+        console.log(userId);
+        navigation.navigate('Profile', { userId: userId });
+    }
+
     return (
         <View style={styles.container}>
+        <TouchableOpacity onPress={navToUser}>
             <View style={styles.rowContainer}>
                 <Text style={styles.username}>{username}</Text>
                 <Text style={styles.timestamp}>{formatTimestamp(timestamp)}</Text>
             </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={navToEstablishment}>
             <StarRating
                 rating={rating}
                 starSize={20}
@@ -27,6 +43,7 @@ const ReviewDisplayBox = ({ text, username, timestamp, rating }) => {
                 animationConfig={{ scale: 1 }}
             />
             <Text style={styles.text}>{text}</Text>
+        </TouchableOpacity>
         </View>
     ) 
 }

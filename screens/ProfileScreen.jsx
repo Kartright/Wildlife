@@ -8,7 +8,7 @@ import { updateProfile } from 'firebase/auth';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import ReviewDisplayBox from '../components/ReviewDisplayBox'; 
 
-export default function ProfileScreen({ route }) {
+export default function ProfileScreen({ route, navigation }) {
     const { usrId } = route.params;
     const [reviews, setReviews] = useState([]);
 	const [image, setImage] = useState(null);
@@ -78,6 +78,9 @@ export default function ProfileScreen({ route }) {
 							username={auth.currentUser.displayName}
 							timestamp={item.timestamp}
 							rating={item.rating}
+							establishmentId={item.establishmentId}
+							userId={usrId}
+							navigation={navigation}
 						/>
 					</View>
             ))}

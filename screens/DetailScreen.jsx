@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { updateDoc, addDoc, collection, onSnapshot, query, doc } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import { auth } from '../authService';
 import StarRating from 'react-native-star-rating-widget';
 import ReviewDisplayBox from '../components/ReviewDisplayBox';
 
-export default function DetailScreen({ route }) {
+export default function DetailScreen({ route, navigation }) {
     const { place } = route.params;
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState('');
@@ -51,6 +51,7 @@ export default function DetailScreen({ route }) {
             rating: parseFloat(rating),
             comment,
             timestamp: new Date(),
+            establishmentId: place.id
         });
 
 
@@ -97,6 +98,9 @@ export default function DetailScreen({ route }) {
                         username={item.displayName}
                         timestamp={item.timestamp}
                         rating={item.rating}
+                        establishmentId={item.establishmentId}
+                        userId={item.userId}
+                        navigation={navigation}
                     />
                 </View>
             ))}
