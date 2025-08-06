@@ -45,8 +45,8 @@ export default function DetailScreen({ route, navigation }) {
 
 
         // Store feedback in user collection
-        const feedbackByUserIdRef = collection(db, 'Reviews_By_User_ID', auth.currentUser.uid , 'Reviews');
-        await addDoc(feedbackByUserIdRef, {
+        const usersFeedbackRef = collection(db, 'Users', auth.currentUser.uid , 'Reviews');
+        await addDoc(usersFeedbackRef, {
             establishmentName: place.name,
             rating: parseFloat(rating),
             comment,
@@ -64,8 +64,8 @@ export default function DetailScreen({ route, navigation }) {
 
 
         //Update user review count
-        const userReviewCountRef = collection(db, 'Reviews_By_User_ID', auth.currentUser.uid);
-        await updateDoc(userReviewCountRef, {
+        const usersRef = collection(db, 'Users', auth.currentUser.uid);
+        await updateDoc(usersRef, {
             reviewCount: increment(1)
         }); 
 
