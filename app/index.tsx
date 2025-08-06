@@ -9,6 +9,7 @@ import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import AddLocationScreen from '../screens/AddLocationScreen';
+import UserDetailsScreen from '../screens/UserDetailsScreen.jsx';
 
 
 const AppStack = createStackNavigator();
@@ -32,6 +33,7 @@ function AppNavigator() {
         	<AppStack.Screen name="Detail" component={DetailScreen} options={{ title: 'Place Details' }} />
         	<AppStack.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profile' }} />
         	<AppStack.Screen name="AddLocation" component={AddLocationScreen} options={{ title: 'Add Location' }} />
+			<AppStack.Screen name="UserDetails" component={UserDetailsScreen} options={{ title: 'Details' }} />
       	</AppStack.Navigator>
   	);
 };
