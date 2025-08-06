@@ -16,7 +16,7 @@ export default function ProfileScreen({ route, navigation }) {
 
     // Fetch user's most recent reviews
     useEffect(() => {
-        const q = query(collection(db, 'Reviews_By_User_ID', usrId, 'Reviews'), orderBy('timestamp', 'desc'));
+        const q = query(collection(db, 'Users', usrId, 'Reviews'), orderBy('timestamp', 'desc'));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const ReviewsData = querySnapshot.docs.map(doc => doc.data());
             setReviews(ReviewsData);
