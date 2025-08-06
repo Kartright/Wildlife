@@ -13,12 +13,12 @@ export const signUpUser = async (email, password, username) => {
     updateProfile(auth.currentUser, {
         displayName: username
     })
-    // Create Review Collection
-    const reviewsByUserIdRef = doc(db, 'Reviews_By_User_ID', auth.currentUser.uid);
-    await setDoc(reviewsByUserIdRef, {
-      usrId: auth.currentUser.uid,
+    // Create User Collection
+    const usersRef = doc(db, 'Users', auth.currentUser.uid);
+    await setDoc(usersRef, {
+      displayName: username,
       reviewCount: 0,
-    });
+    })
     return userCredential.user; // Returns the signed-up user object
   } catch (error) {
     throw new Error(error.message); // Handle the error appropriately
