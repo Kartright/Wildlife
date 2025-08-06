@@ -20,14 +20,9 @@ const ReviewDisplayBox = ({ text, username, timestamp, rating, establishmentId, 
         navigation.navigate('Detail', {place: {id: establishmentId, ...docSnap.data()}} );
     }
 
-    const navToUser = async () => {
-        console.log(userId);
-        navigation.navigate('Profile', { userId: userId });
-    }
-
     return (
         <View style={styles.container}>
-        <TouchableOpacity onPress={navToUser}>
+        <TouchableOpacity onPress={() =>{navigation.navigate('UserDetails', {usrId: userId});}}>
             <View style={styles.rowContainer}>
                 <Text style={styles.username}>{username}</Text>
                 <Text style={styles.timestamp}>{formatTimestamp(timestamp)}</Text>
