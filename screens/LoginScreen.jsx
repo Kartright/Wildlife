@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, Button } from 'react-native';
 import { signInUser } from '../authService';
 
-export default function LoginScreen() {
+export default function LoginScreen({ navigation }) {
     // Email and Password variables
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
