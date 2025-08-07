@@ -4,7 +4,7 @@ import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { db, storage } from '../firebaseConfig';
 import * as ImagePicker from 'expo-image-picker';
 import { auth } from '../authService';
-import { updateProfile } from 'firebase/auth';
+import { updateProfile, signOut } from 'firebase/auth';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import ReviewDisplayBox from '../components/ReviewDisplayBox'; 
 
@@ -62,8 +62,19 @@ export default function ProfileScreen({ route, navigation }) {
 		console.log('Uploaded!')
 	}
 
+	const handleLogout = async () => {
+		try {
+			await signOut(auth);
+    		// Optionally navigate to login screen or show a message
+    		navigation.replace('Login');
+		} catch (error) {
+    		console.error('Error signing out:', error);
+  		}
+	};
+
     return (
         <View style={styles.container}>
+			<Button title="Logout" onPress={handleLogout} />
 			<Button title="Change profile picture" onPress={pickImage} />
             <Text style={styles.subtitle}>Username: {auth.currentUser.displayName}</Text>
             <Text style={styles.subtitle}>Reviews:</Text>
