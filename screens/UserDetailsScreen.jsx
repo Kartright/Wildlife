@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, Image, ScrollView } from 'react-native';
-import { collection, onSnapshot, orderBy, query, doc, getDoc } from 'firebase/firestore';
+import { collection, onSnapshot, orderBy, query, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import { db, storage } from '../firebaseConfig';
 import * as ImagePicker from 'expo-image-picker';
 import { auth } from '../authService';
@@ -9,7 +9,8 @@ import ReviewDisplayBox from '../components/ReviewDisplayBox';
 export default function UserDetailsScreen({ route, navigation }) {
     const { usrId } = route.params;
     const [reviews, setReviews] = useState([]);
-    const [userInfo, setUserInfo] = useState([]); 
+    const [userInfo, setUserInfo] = useState([]);
+    const [isFollowing, setIsFollowing] = useState(null); 
 	const [image, setImage] = useState(null);
 
     
@@ -41,8 +42,69 @@ export default function UserDetailsScreen({ route, navigation }) {
         return () => unsubscribe();
     }, [usrId]);
 
+    // check if following user
+    useEffect(() => {
+        const checkIfFollowing = async () => {
+            const docRef = doc(db, 'Users', auth.currentUser.uid, "Follows", usrId);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                setIsFollowing(true);
+            } else {
+                setIsFollowing(false);
+            }
+        };
+
+        checkIfFollowing();
+
+    }, [usrId])
+
+    // Check if currently signed in user is following the user whose information is currently displayed
+    const checkIfFollowing = async () => {
+        const docRef = doc(db, 'Users', auth.currentUser.uid, "Follows", usrId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            console.log("Following");
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // add user to current users following list and add current user to users follower list
+    const followUser = async () => {
+        const followsRef = doc(db, "Users", auth.currentUser.uid, "Follows", usrId);
+        await setDoc(followsRef, {
+            userId: usrId,
+            timestamp: new Date()
+        });
+
+        const followersRef = doc(db, "Users", usrId, "Followers", auth.currentUser.uid);
+        await setDoc(followersRef, {
+            userId: auth.currentUser.uid,
+            timestamp: new Date()
+        })
+
+        setIsFollowing(true);
+    }
+
+    // remove users from following and follows lists when the current user unfollows the displayed user
+    const unFollowUser = async () => {
+        try {
+            const followsRef = doc(db, "Users", auth.currentUser.uid, "Follows", usrId);
+            await deleteDoc(followsRef);
+
+            const followersRef = doc(db, "Users", usrId, "Followers", auth.currentUser.uid);
+            await deleteDoc(followersRef);
+
+            setIsFollowing(false);
+        } catch (error) {
+            console.error("Error deleting document: ", error);
+        }
+    }
+
     return (
         <View style={styles.container}>
+            <Button style={{ opacity: isFollowing ? 0.5 : 1 }} title={isFollowing ? "Following" : "Follow"} onPress={isFollowing ? unFollowUser : followUser}/>
             <Text style={styles.subtitle}>Username: {userInfo.displayName}</Text>
             <Text style={styles.subtitle}>Reviews:</Text>
 			<ScrollView style={{ flexGrow: 1 }}>
@@ -53,7 +115,7 @@ export default function UserDetailsScreen({ route, navigation }) {
                 		</Text>
 						<ReviewDisplayBox
 							text={item.comment}
-							username={auth.currentUser.displayName}
+							username={userInfo.displayName}
 							timestamp={item.timestamp}
 							rating={item.rating}
 							establishmentId={item.establishmentId}
