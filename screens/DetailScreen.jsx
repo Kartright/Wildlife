@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
-import { updateDoc, addDoc, collection, onSnapshot, query, doc } from 'firebase/firestore';
+import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
+import { updateDoc, addDoc, collection, onSnapshot, query, doc, increment, orderBy } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import { auth } from '../authService';
 import StarRating from 'react-native-star-rating-widget';
@@ -16,7 +16,7 @@ export default function DetailScreen({ route, navigation }) {
     // Fetch real-time feedback
     useEffect(() => {
         //const unsubscribe = db.collection('establishments').doc(place.id)
-        const q = query(collection(db, 'establishments', place.id, 'feedback'));
+        const q = query(collection(db, 'establishments', place.id, 'feedback'), orderBy('timestamp', 'desc'));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const feedbackData = querySnapshot.docs.map(doc => doc.data());
             setFeedback(feedbackData);
@@ -64,7 +64,7 @@ export default function DetailScreen({ route, navigation }) {
 
 
         //Update user review count
-        const usersRef = collection(db, 'Users', auth.currentUser.uid);
+        const usersRef = doc(db, 'Users', auth.currentUser.uid);
         await updateDoc(usersRef, {
             reviewCount: increment(1)
         }); 
@@ -91,6 +91,7 @@ export default function DetailScreen({ route, navigation }) {
             />
             <Button title="Check-In & Submit" onPress={submitFeedback} />
             <Text style={styles.subtitle}>Live Feedback:</Text>
+            <ScrollView style={{ flexGrow: 1 }}>
             {feedback.map((item, index) => (
                 <View key={index}>
                     <ReviewDisplayBox
@@ -104,6 +105,7 @@ export default function DetailScreen({ route, navigation }) {
                     />
                 </View>
             ))}
+            </ScrollView>
         </View>
     );
 }
